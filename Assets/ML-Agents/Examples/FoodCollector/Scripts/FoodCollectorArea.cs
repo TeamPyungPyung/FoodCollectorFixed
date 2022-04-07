@@ -24,18 +24,6 @@ public class FoodCollectorArea : Area
         }
     }
 
-    void CreateAgent(int num, GameObject type)
-    {
-        for (int i = 0; i < num; i++)
-        {
-            GameObject f = Instantiate(type, new Vector3(Random.Range(-range, range), 1f,
-                Random.Range(-range, range)) + transform.position,
-                Quaternion.Euler(new Vector3(0f, Random.Range(0f, 360f), 90f)));
-            f.GetComponent<FoodCollectorAgent>().Initialize();
-            f.GetComponent<FoodCollectorAgent>().OnEpisodeBegin();
-        }
-    }
-
     public void ResetFoodArea(GameObject[] agents)
     {
         foreach (GameObject agent in agents)
@@ -51,7 +39,6 @@ public class FoodCollectorArea : Area
                agent.transform.rotation = Quaternion.Euler(new Vector3(0f, Random.Range(0, 360)));
             }
         }
-        //CreateAgent(numAgent, agent);
         CreateFood(numFood, food);
         CreateFood(numBadFood, badFood);
     }

@@ -14,11 +14,8 @@ public class FoodCollectorSettings : MonoBehaviour
 
     StatsRecorder m_Recorder;
 
-    public int curNumOfAgents;
-
     public void Awake()
     {
-        curNumOfAgents = 0;
         Academy.Instance.OnEnvironmentReset += EnvironmentReset;
         m_Recorder = Academy.Instance.StatsRecorder;
     }
@@ -27,8 +24,6 @@ public class FoodCollectorSettings : MonoBehaviour
     {
         ClearObjects(GameObject.FindGameObjectsWithTag("food"));
         ClearObjects(GameObject.FindGameObjectsWithTag("badFood"));
-        //ClearObjects(GameObject.FindGameObjectsWithTag("agent"));
-        curNumOfAgents = 0;
         agents = GameObject.FindGameObjectsWithTag("agent");
         listArea = FindObjectsOfType<FoodCollectorArea>();
         foreach (var fa in listArea)

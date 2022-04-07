@@ -62,9 +62,6 @@ public class FoodCollectorAgent : Agent
         curSize = 1;
         curAge = 0;
         maxAge = maxEnergy * 2;
-
-        m_FoodCollecterSettings.curNumOfAgents++;
-        Debug.Log(m_FoodCollecterSettings.curNumOfAgents);
     }
 
     private void Update()
@@ -74,18 +71,12 @@ public class FoodCollectorAgent : Agent
 
         if (curEnergy < 0)
         {
-            //m_FoodCollecterSettings.curNumOfAgents--;
-            //Debug.Log(m_FoodCollecterSettings.curNumOfAgents);
             EndEpisode();
-            //Destroy(gameObject);
             return;
         }
         if (curAge > maxAge)
         {
-            //m_FoodCollecterSettings.curNumOfAgents--;
-            //Debug.Log(m_FoodCollecterSettings.curNumOfAgents);
             EndEpisode();
-            //Destroy(gameObject);
             return;
         }
     }
@@ -206,8 +197,6 @@ public class FoodCollectorAgent : Agent
             child.GetComponent<FoodCollectorAgent>().OnEpisodeBegin();
             curEnergy /= 2;
             AddReward(1.5f);
-            m_FoodCollecterSettings.curNumOfAgents++;
-            Debug.Log(m_FoodCollecterSettings.curNumOfAgents);
         }
     }
 
