@@ -34,51 +34,15 @@ public class FoodCollectorAgent : Agent
              "VisualFoodCollector scene.")]
     public bool useVectorFrozenFlag;
 
-    // energy, die, reproduce
-    public float maxEnergy;
-    public float sizeGrowthRate;
-    public float matureSize;
-    public float ageRate;
-    public float maxAge;
-
-    public float curEnergy;
-    public float curSize;
-    public float curAge;
-
-    public GameObject childObject;
-
     EnvironmentParameters m_ResetParams;
 
     public override void Initialize()
     {
-        //base.Initialize();
         m_AgentRb = GetComponent<Rigidbody>();
         m_MyArea = area.GetComponent<FoodCollectorArea>();
         m_FoodCollecterSettings = FindObjectOfType<FoodCollectorSettings>();
         m_ResetParams = Academy.Instance.EnvironmentParameters;
         SetResetParameters();
-
-        curEnergy = 1;
-        curSize = 1;
-        curAge = 0;
-        maxAge = maxEnergy * 2;
-    }
-
-    private void Update()
-    {
-        curAge += ageRate;
-        curEnergy -= ageRate;
-
-        if (curEnergy < 0)
-        {
-            EndEpisode();
-            return;
-        }
-        if (curAge > maxAge)
-        {
-            EndEpisode();
-            return;
-        }
     }
 
     public override void CollectObservations(VectorSensor sensor)
@@ -95,9 +59,6 @@ public class FoodCollectorAgent : Agent
         {
             sensor.AddObservation(m_Frozen);
         }
-        sensor.AddObservation(curEnergy);
-        sensor.AddObservation(curSize);
-        sensor.AddObservation(curAge);
     }
 
     public Color32 ToColor(int hexVal)
@@ -153,12 +114,6 @@ public class FoodCollectorAgent : Agent
             }
             m_AgentRb.AddForce(dirToGo * moveSpeed, ForceMode.VelocityChange);
             transform.Rotate(rotateDir, Time.fixedDeltaTime * turnSpeed);
-
-            var reproduceCommand = discreteActions[1] > 0;
-            if (reproduceCommand)
-            {
-                Reproduce();
-            }
         }
 
         if (m_AgentRb.velocity.sqrMagnitude > 25f) // slow it down
@@ -166,7 +121,7 @@ public class FoodCollectorAgent : Agent
             m_AgentRb.velocity *= 0.95f;
         }
 
-        if (m_Shoot)
+        if (false && m_Shoot)
         {
             var myTransform = transform;
             myLaser.transform.localScale = new Vector3(1f, 1f, m_LaserLength);
@@ -175,9 +130,9 @@ public class FoodCollectorAgent : Agent
             RaycastHit hit;
             if (Physics.SphereCast(transform.position, 2f, rayDir, out hit, 25f))
             {
-                if (hit.collider.gameObject.CompareTag("agent"))
+                if (hit.collider.gameObject.CompareTag("predator"))
                 {
-                    hit.collider.gameObject.GetComponent<FoodCollectorAgent>().Freeze();
+                    hit.collider.gameObject.GetComponent<PredatorAgent>().Freeze();
                 }
             }
         }
@@ -187,20 +142,7 @@ public class FoodCollectorAgent : Agent
         }
     }
 
-    void Reproduce()
-    {
-        if (curEnergy > (maxEnergy / 2) + 1)
-        {
-            var nearPosition = Random.insideUnitCircle * 2;
-            var child = Instantiate(childObject, new Vector3(nearPosition.x, 2f, nearPosition.y), Quaternion.identity );
-            child.name = child.name + "junior";
-            child.GetComponent<FoodCollectorAgent>().OnEpisodeBegin();
-            curEnergy /= 2;
-            AddReward(1.5f);
-        }
-    }
-
-    void Freeze()
+    public void Freeze()
     {
         gameObject.tag = "frozenAgent";
         m_Frozen = true;
@@ -268,7 +210,6 @@ public class FoodCollectorAgent : Agent
         }
         var discreteActionsOut = actionsOut.DiscreteActions;
         discreteActionsOut[0] = Input.GetKey(KeyCode.Space) ? 1 : 0;
-        discreteActionsOut[1] = Input.GetKey(KeyCode.R) ? 1 : 0;
     }
 
     public override void OnEpisodeBegin()
@@ -284,10 +225,6 @@ public class FoodCollectorAgent : Agent
             + area.transform.position;
         transform.rotation = Quaternion.Euler(new Vector3(0f, Random.Range(0, 360)));
 
-        curEnergy = 1;
-        curSize = 1;
-        curAge = 0;
-        maxAge = maxEnergy * 2;
         SetResetParameters();
     }
 
@@ -297,14 +234,6 @@ public class FoodCollectorAgent : Agent
         {
             Satiate();
             collision.gameObject.GetComponent<FoodLogic>().OnEaten();
-
-            // Get Energy
-            curEnergy += 1.0f;
-            if (curEnergy > maxEnergy)
-            {
-                curEnergy = maxEnergy;
-            }
-
             AddReward(1f);
             if (contribute)
             {
@@ -339,5 +268,10 @@ public class FoodCollectorAgent : Agent
     {
         SetLaserLengths();
         SetAgentScale();
+    }
+
+    public void OnEaten()
+    {
+        OnEpisodeBegin();
     }
 }
