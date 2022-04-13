@@ -6,7 +6,8 @@ using Random = UnityEngine.Random;
 
 public class PredatorAgent : Agent
 {
-    PredatorSettings m_PredatorSettings;
+    //PredatorSettings m_PredatorSettings;
+    FoodCollectorSettings m_FoodCollecterSettings;
     public GameObject area;
     FoodCollectorArea m_MyArea;
     bool m_Frozen;
@@ -38,7 +39,7 @@ public class PredatorAgent : Agent
     {
         m_AgentRb = GetComponent<Rigidbody>();
         m_MyArea = area.GetComponent<FoodCollectorArea>();
-        m_PredatorSettings = FindObjectOfType<PredatorSettings>();
+        m_FoodCollecterSettings = FindObjectOfType<FoodCollectorSettings>();
         m_ResetParams = Academy.Instance.EnvironmentParameters;
         SetResetParameters();
     }
@@ -100,12 +101,14 @@ public class PredatorAgent : Agent
             rotateDir = -transform.up * rotate;
 
             var shootCommand = discreteActions[0] > 0;
-            if (shootCommand)
+            // Laser disabled.
+            if (false && shootCommand)
             {
                 m_Shoot = true;
                 dirToGo *= 0.5f;
                 m_AgentRb.velocity *= 0.75f;
             }
+
             m_AgentRb.AddForce(dirToGo * moveSpeed, ForceMode.VelocityChange);
             transform.Rotate(rotateDir, Time.fixedDeltaTime * turnSpeed);
         }
@@ -138,6 +141,8 @@ public class PredatorAgent : Agent
 
     public void Freeze()
     {
+        // possible error include.
+        // Now, we don't use laser to freeze, it's okay but just notify.
         gameObject.tag = "frozenAgent";
         m_Frozen = true;
         m_FrozenTime = Time.time;
@@ -147,7 +152,7 @@ public class PredatorAgent : Agent
     void Unfreeze()
     {
         m_Frozen = false;
-        gameObject.tag = "agent";
+        gameObject.tag = "predator";
         gameObject.GetComponentInChildren<Renderer>().material = normalMaterial;
     }
     void Satiate()
@@ -214,9 +219,12 @@ public class PredatorAgent : Agent
             Satiate();
             collision.gameObject.GetComponent<FoodCollectorAgent>().OnEaten();
             AddReward(1f);
+
+            //Because contribute is false now. don't have to care this.
+            // totalScore do nothing. don't worry.
             if (contribute)
             {
-                m_PredatorSettings.totalScore += 1;
+                m_FoodCollecterSettings.predatorScore += 1;
             }
         }
     }
