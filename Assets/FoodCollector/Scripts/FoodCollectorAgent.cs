@@ -105,13 +105,15 @@ public class FoodCollectorAgent : Agent
             dirToGo += transform.right * right;
             rotateDir = -transform.up * rotate;
 
+            //Laser disabled.
             var shootCommand = discreteActions[0] > 0;
-            if (shootCommand)
+            if (false && shootCommand)
             {
                 m_Shoot = true;
                 dirToGo *= 0.5f;
                 m_AgentRb.velocity *= 0.75f;
             }
+
             m_AgentRb.AddForce(dirToGo * moveSpeed, ForceMode.VelocityChange);
             transform.Rotate(rotateDir, Time.fixedDeltaTime * turnSpeed);
         }
@@ -237,7 +239,7 @@ public class FoodCollectorAgent : Agent
             AddReward(1f);
             if (contribute)
             {
-                m_FoodCollecterSettings.totalScore += 1;
+                m_FoodCollecterSettings.agentScore += 1;
             }
         }
         if (collision.gameObject.CompareTag("badFood"))
@@ -248,7 +250,7 @@ public class FoodCollectorAgent : Agent
             AddReward(-1f);
             if (contribute)
             {
-                m_FoodCollecterSettings.totalScore -= 1;
+                m_FoodCollecterSettings.agentScore -= 1;
             }
         }
     }
@@ -272,6 +274,14 @@ public class FoodCollectorAgent : Agent
 
     public void OnEaten()
     {
-        OnEpisodeBegin();
+        //when eaten, add - reward, and Endepisode.
+        //(Endepisode() will call OnEpisodeBegin. Don't worry
+        AddReward(-2f);
+        if (contribute)
+        {
+            m_FoodCollecterSettings.agentScore -= 2;
+        }
+        EndEpisode();
+        //OnEpisodeBegin();
     }
 }

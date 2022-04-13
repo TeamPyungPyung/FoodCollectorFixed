@@ -6,10 +6,12 @@ public class FoodCollectorSettings : MonoBehaviour
 {
     [HideInInspector]
     public GameObject[] agents;
+    public GameObject[] predators;
     [HideInInspector]
     public FoodCollectorArea[] listArea;
 
-    public int totalScore;
+    public int agentScore;
+    public int predatorScore;
     public Text scoreText;
 
     StatsRecorder m_Recorder;
@@ -26,13 +28,15 @@ public class FoodCollectorSettings : MonoBehaviour
         ClearObjects(GameObject.FindGameObjectsWithTag("badFood"));
 
         agents = GameObject.FindGameObjectsWithTag("agent");
+        predators = GameObject.FindGameObjectsWithTag("predator");
         listArea = FindObjectsOfType<FoodCollectorArea>();
         foreach (var fa in listArea)
         {
-            fa.ResetFoodArea(agents);
+            fa.ResetFoodArea(agents, predators);
         }
 
-        totalScore = 0;
+        agentScore = 0;
+        predatorScore = 0;
     }
 
     void ClearObjects(GameObject[] objects)
@@ -45,14 +49,15 @@ public class FoodCollectorSettings : MonoBehaviour
 
     public void Update()
     {
-        scoreText.text = $"Score: {totalScore}";
+        scoreText.text = $"agentScore: {agentScore}, predatorScore: {predatorScore}";
 
         // Send stats via SideChannel so that they'll appear in TensorBoard.
         // These values get averaged every summary_frequency steps, so we don't
         // need to send every Update() call.
         if ((Time.frameCount % 100) == 0)
         {
-            m_Recorder.Add("TotalScore", totalScore);
+            m_Recorder.Add("agentScore", agentScore);
+            m_Recorder.Add("predatorScore", predatorScore);
         }
     }
 }

@@ -22,7 +22,15 @@ public class FoodCollectorArea : Area
         }
     }
 
-    public void ResetFoodArea(GameObject[] agents)
+    public void ResetFoodArea(GameObject[] agents, GameObject[] predators)
+    {
+        ResetAgent(agents);
+        ResetAgent(predators);
+        CreateFood(numFood, food);
+        CreateFood(numBadFood, badFood);
+    }
+
+    void ResetAgent(GameObject[] agents)
     {
         foreach (GameObject agent in agents)
         {
@@ -34,9 +42,6 @@ public class FoodCollectorArea : Area
                 agent.transform.rotation = Quaternion.Euler(new Vector3(0f, Random.Range(0, 360)));
             }
         }
-
-        CreateFood(numFood, food);
-        CreateFood(numBadFood, badFood);
     }
 
     public override void ResetArea()
