@@ -4,13 +4,13 @@ using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
 using Random = UnityEngine.Random;
 
-public class FoodCollectorAgent : Agent
+public class PredatorAgent : Agent
 {
+    //PredatorSettings m_PredatorSettings;
     FoodCollectorSettings m_FoodCollecterSettings;
     public GameObject area;
     FoodCollectorArea m_MyArea;
     bool m_Frozen;
-    bool m_Poisoned;
     bool m_Satiated;
     bool m_Shoot;
     float m_FrozenTime;
@@ -23,7 +23,6 @@ public class FoodCollectorAgent : Agent
     // Speed of agent movement.
     public float moveSpeed = 2;
     public Material normalMaterial;
-    public Material badMaterial;
     public Material goodMaterial;
     public Material frozenMaterial;
     public GameObject myLaser;
@@ -34,51 +33,15 @@ public class FoodCollectorAgent : Agent
              "VisualFoodCollector scene.")]
     public bool useVectorFrozenFlag;
 
-    // energy, die, reproduce
-    public float maxEnergy;
-    public float sizeGrowthRate;
-    public float matureSize;
-    public float ageRate;
-    public float maxAge;
-
-    public float curEnergy;
-    public float curSize;
-    public float curAge;
-
-    public GameObject childObject;
-
     EnvironmentParameters m_ResetParams;
 
     public override void Initialize()
     {
-        //base.Initialize();
         m_AgentRb = GetComponent<Rigidbody>();
         m_MyArea = area.GetComponent<FoodCollectorArea>();
         m_FoodCollecterSettings = FindObjectOfType<FoodCollectorSettings>();
         m_ResetParams = Academy.Instance.EnvironmentParameters;
         SetResetParameters();
-
-        curEnergy = 1;
-        curSize = 1;
-        curAge = 0;
-        maxAge = maxEnergy * 2;
-    }
-
-    private void Update()
-    {
-        curAge += ageRate;
-        curEnergy -= ageRate;
-
-        if (curEnergy < 0)
-        {
-            EndEpisode();
-            return;
-        }
-        if (curAge > maxAge)
-        {
-            EndEpisode();
-            return;
-        }
     }
 
     public override void CollectObservations(VectorSensor sensor)
@@ -95,9 +58,6 @@ public class FoodCollectorAgent : Agent
         {
             sensor.AddObservation(m_Frozen);
         }
-        sensor.AddObservation(curEnergy);
-        sensor.AddObservation(curSize);
-        sensor.AddObservation(curAge);
     }
 
     public Color32 ToColor(int hexVal)
@@ -118,10 +78,6 @@ public class FoodCollectorAgent : Agent
         }
         if (Time.time > m_EffectTime + 0.5f)
         {
-            if (m_Poisoned)
-            {
-                Unpoison();
-            }
             if (m_Satiated)
             {
                 Unsatiate();
@@ -145,20 +101,16 @@ public class FoodCollectorAgent : Agent
             rotateDir = -transform.up * rotate;
 
             var shootCommand = discreteActions[0] > 0;
-            if (shootCommand)
+            // Laser disabled.
+            if (false && shootCommand)
             {
                 m_Shoot = true;
                 dirToGo *= 0.5f;
                 m_AgentRb.velocity *= 0.75f;
             }
+
             m_AgentRb.AddForce(dirToGo * moveSpeed, ForceMode.VelocityChange);
             transform.Rotate(rotateDir, Time.fixedDeltaTime * turnSpeed);
-
-            var reproduceCommand = discreteActions[1] > 0;
-            if (reproduceCommand)
-            {
-                Reproduce();
-            }
         }
 
         if (m_AgentRb.velocity.sqrMagnitude > 25f) // slow it down
@@ -166,7 +118,7 @@ public class FoodCollectorAgent : Agent
             m_AgentRb.velocity *= 0.95f;
         }
 
-        if (m_Shoot)
+        if (false && m_Shoot)
         {
             var myTransform = transform;
             myLaser.transform.localScale = new Vector3(1f, 1f, m_LaserLength);
@@ -187,21 +139,10 @@ public class FoodCollectorAgent : Agent
         }
     }
 
-    void Reproduce()
+    public void Freeze()
     {
-        if (curEnergy > (maxEnergy / 2) + 1)
-        {
-            var nearPosition = Random.insideUnitCircle * 2;
-            var child = Instantiate(childObject, new Vector3(nearPosition.x, 2f, nearPosition.y), Quaternion.identity );
-            child.name = child.name + "junior";
-            child.GetComponent<FoodCollectorAgent>().OnEpisodeBegin();
-            curEnergy /= 2;
-            AddReward(1.5f);
-        }
-    }
-
-    void Freeze()
-    {
+        // possible error include.
+        // Now, we don't use laser to freeze, it's okay but just notify.
         gameObject.tag = "frozenAgent";
         m_Frozen = true;
         m_FrozenTime = Time.time;
@@ -211,23 +152,9 @@ public class FoodCollectorAgent : Agent
     void Unfreeze()
     {
         m_Frozen = false;
-        gameObject.tag = "agent";
+        gameObject.tag = "predator";
         gameObject.GetComponentInChildren<Renderer>().material = normalMaterial;
     }
-
-    void Poison()
-    {
-        m_Poisoned = true;
-        m_EffectTime = Time.time;
-        gameObject.GetComponentInChildren<Renderer>().material = badMaterial;
-    }
-
-    void Unpoison()
-    {
-        m_Poisoned = false;
-        gameObject.GetComponentInChildren<Renderer>().material = normalMaterial;
-    }
-
     void Satiate()
     {
         m_Satiated = true;
@@ -268,13 +195,11 @@ public class FoodCollectorAgent : Agent
         }
         var discreteActionsOut = actionsOut.DiscreteActions;
         discreteActionsOut[0] = Input.GetKey(KeyCode.Space) ? 1 : 0;
-        discreteActionsOut[1] = Input.GetKey(KeyCode.R) ? 1 : 0;
     }
 
     public override void OnEpisodeBegin()
     {
         Unfreeze();
-        Unpoison();
         Unsatiate();
         m_Shoot = false;
         m_AgentRb.velocity = Vector3.zero;
@@ -284,42 +209,22 @@ public class FoodCollectorAgent : Agent
             + area.transform.position;
         transform.rotation = Quaternion.Euler(new Vector3(0f, Random.Range(0, 360)));
 
-        curEnergy = 1;
-        curSize = 1;
-        curAge = 0;
-        maxAge = maxEnergy * 2;
         SetResetParameters();
     }
 
     void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("food"))
+        if (collision.gameObject.CompareTag("agent"))
         {
             Satiate();
-            collision.gameObject.GetComponent<FoodLogic>().OnEaten();
-
-            // Get Energy
-            curEnergy += 1.0f;
-            if (curEnergy > maxEnergy)
-            {
-                curEnergy = maxEnergy;
-            }
-
+            collision.gameObject.GetComponent<FoodCollectorAgent>().OnEaten();
             AddReward(1f);
-            if (contribute)
-            {
-                m_FoodCollecterSettings.totalScore += 1;
-            }
-        }
-        if (collision.gameObject.CompareTag("badFood"))
-        {
-            Poison();
-            collision.gameObject.GetComponent<FoodLogic>().OnEaten();
 
-            AddReward(-1f);
+            //Because contribute is false now. don't have to care this.
+            // totalScore do nothing. don't worry.
             if (contribute)
             {
-                m_FoodCollecterSettings.totalScore -= 1;
+                m_FoodCollecterSettings.predatorScore += 1;
             }
         }
     }
