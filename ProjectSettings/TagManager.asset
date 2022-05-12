@@ -31,6 +31,7 @@ TagManager:
   - purpleGoal
   - tile
   - predator
+  - trees
   layers:
   - Default
   - TransparentFX

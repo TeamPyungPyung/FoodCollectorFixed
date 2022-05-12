@@ -236,7 +236,8 @@ public class PredatorAgent : Agent
 
     public void SetAgentScale()
     {
-        float agentScale = m_ResetParams.GetWithDefault("agent_scale", 1.0f);
+        // bigger predator
+        float agentScale = m_ResetParams.GetWithDefault("agent_scale", 2.0f);
         gameObject.transform.localScale = new Vector3(agentScale, agentScale, agentScale);
     }
 
