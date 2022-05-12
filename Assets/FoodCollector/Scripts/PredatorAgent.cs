@@ -25,7 +25,6 @@ public class PredatorAgent : Agent
     public Material normalMaterial;
     public Material goodMaterial;
     public Material frozenMaterial;
-    public GameObject myLaser;
     public bool contribute;
     public bool useVectorObs;
     [Tooltip("Use only the frozen flag in vector observations. If \"Use Vector Obs\" " +
@@ -121,7 +120,6 @@ public class PredatorAgent : Agent
         if (false && m_Shoot)
         {
             var myTransform = transform;
-            myLaser.transform.localScale = new Vector3(1f, 1f, m_LaserLength);
             var rayDir = 25.0f * myTransform.forward;
             Debug.DrawRay(myTransform.position, rayDir, Color.red, 0f, true);
             RaycastHit hit;
@@ -132,10 +130,6 @@ public class PredatorAgent : Agent
                     hit.collider.gameObject.GetComponent<FoodCollectorAgent>().Freeze();
                 }
             }
-        }
-        else
-        {
-            myLaser.transform.localScale = new Vector3(0f, 0f, 0f);
         }
     }
 
@@ -203,7 +197,6 @@ public class PredatorAgent : Agent
         Unsatiate();
         m_Shoot = false;
         m_AgentRb.velocity = Vector3.zero;
-        myLaser.transform.localScale = new Vector3(0f, 0f, 0f);
         transform.position = new Vector3(Random.Range(-m_MyArea.range, m_MyArea.range),
             2f, Random.Range(-m_MyArea.range, m_MyArea.range))
             + area.transform.position;

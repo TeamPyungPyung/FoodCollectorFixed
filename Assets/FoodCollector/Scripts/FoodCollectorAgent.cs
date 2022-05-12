@@ -26,7 +26,6 @@ public class FoodCollectorAgent : Agent
     public Material badMaterial;
     public Material goodMaterial;
     public Material frozenMaterial;
-    public GameObject myLaser;
     public bool contribute;
     public bool useVectorObs;
     [Tooltip("Use only the frozen flag in vector observations. If \"Use Vector Obs\" " +
@@ -126,7 +125,6 @@ public class FoodCollectorAgent : Agent
         if (false && m_Shoot)
         {
             var myTransform = transform;
-            myLaser.transform.localScale = new Vector3(1f, 1f, m_LaserLength);
             var rayDir = 25.0f * myTransform.forward;
             Debug.DrawRay(myTransform.position, rayDir, Color.red, 0f, true);
             RaycastHit hit;
@@ -137,10 +135,6 @@ public class FoodCollectorAgent : Agent
                     hit.collider.gameObject.GetComponent<PredatorAgent>().Freeze();
                 }
             }
-        }
-        else
-        {
-            myLaser.transform.localScale = new Vector3(0f, 0f, 0f);
         }
     }
 
@@ -221,7 +215,6 @@ public class FoodCollectorAgent : Agent
         Unsatiate();
         m_Shoot = false;
         m_AgentRb.velocity = Vector3.zero;
-        myLaser.transform.localScale = new Vector3(0f, 0f, 0f);
         transform.position = new Vector3(Random.Range(-m_MyArea.range, m_MyArea.range),
             2f, Random.Range(-m_MyArea.range, m_MyArea.range))
             + area.transform.position;
@@ -230,22 +223,22 @@ public class FoodCollectorAgent : Agent
         SetResetParameters();
     }
 
-    void OnCollisionEnter(Collision collision)
+    void OnTriggerEnter(Collider collider)
     {
-        if (collision.gameObject.CompareTag("food"))
+        if (collider.gameObject.CompareTag("food"))
         {
             Satiate();
-            collision.gameObject.GetComponent<FoodLogic>().OnEaten();
+            collider.gameObject.GetComponent<FoodLogic>().OnEaten();
             AddReward(1f);
             if (contribute)
             {
                 m_FoodCollecterSettings.agentScore += 1;
             }
         }
-        if (collision.gameObject.CompareTag("badFood"))
+        if (collider.gameObject.CompareTag("badFood"))
         {
             Poison();
-            collision.gameObject.GetComponent<FoodLogic>().OnEaten();
+            collider.gameObject.GetComponent<FoodLogic>().OnEaten();
 
             AddReward(-1f);
             if (contribute)
