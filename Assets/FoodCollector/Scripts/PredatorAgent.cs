@@ -244,6 +244,8 @@ public class PredatorAgent : Agent
     public void SetResetParameters()
     {
         SetLaserLengths();
-        SetAgentScale();
+
+        // agentscale reset
+        //SetAgentScale();
     }
 }

@@ -412,7 +412,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 0}
+  m_Model: {fileID: 5022602860645237092, guid: 4d50e8b79075d9643b2db5b4aca9e0b2, type: 3}
   m_InferenceDevice: 2
   m_BehaviorType: 0
   m_BehaviorName: Agent
@@ -438,7 +438,7 @@ MonoBehaviour:
   hasUpgradedFromAgentParameters: 1
   MaxStep: 5000
   area: {fileID: 0}
-  turnSpeed: 300
+  turnSpeed: 450
   moveSpeed: 2
   normalMaterial: {fileID: 2100000, guid: c9fa44c2c3f8ce74ca39a3355ea42631, type: 2}
   badMaterial: {fileID: 2100000, guid: 88b9ae7af2c1748a0a1f63407587a601, type: 2}
@@ -489,7 +489,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_SensorName: GridSensor
   m_CellScale: {x: 1, y: 0.01, z: 1}
-  m_GridSize: {x: 40, y: 1, z: 40}
+  m_GridSize: {x: 30, y: 1, z: 30}
   m_RotateWithAgent: 1
   m_AgentGameObject: {fileID: 0}
   m_DetectableTags:
@@ -497,9 +497,8 @@ MonoBehaviour:
   - agent
   - wall
   - badFood
-  - frozenAgent
-  - predator
   - trees
+  - predator
   m_ColliderMask:
     serializedVersion: 2
     m_Bits: 307
@@ -510,7 +509,6 @@ MonoBehaviour:
   - {r: 0.12941177, g: 0.5882353, b: 0.9529412, a: 0}
   - {r: 0.39215687, g: 0.39215687, b: 0.39215687, a: 0}
   - {r: 0.74509805, g: 0.22745098, b: 0.15294118, a: 0}
-  - {r: 0, g: 0, b: 0, a: 0}
   - {r: 0, g: 0, b: 0, a: 0}
   - {r: 0, g: 0, b: 0, a: 0}
   m_GizmoYOffset: 0
