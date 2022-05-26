@@ -412,7 +412,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: 4d50e8b79075d9643b2db5b4aca9e0b2, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: 0d2a2741e6c11c24fa35eea4baca09ff, type: 3}
   m_InferenceDevice: 2
   m_BehaviorType: 0
   m_BehaviorName: Agent
@@ -488,7 +488,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_SensorName: GridSensor
-  m_CellScale: {x: 1, y: 0.01, z: 1}
+  m_CellScale: {x: 1, y: 1, z: 1}
   m_GridSize: {x: 30, y: 1, z: 30}
   m_RotateWithAgent: 1
   m_AgentGameObject: {fileID: 0}
