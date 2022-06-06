@@ -188,6 +188,7 @@ public class FoodCollectorAgent : Agent
     public override void OnActionReceived(ActionBuffers actionBuffers)
 
     {
+        AddReward(10.0f / 5000.0f);
         MoveAgent(actionBuffers);
     }
 

@@ -171,6 +171,7 @@ public class PredatorAgent : Agent
     public override void OnActionReceived(ActionBuffers actionBuffers)
 
     {
+        AddReward(-1.0f / 5000.0f);
         MoveAgent(actionBuffers);
     }
 
